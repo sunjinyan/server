@@ -1,0 +1,37 @@
+syntax = "proto3";
+package coolcar;
+
+option go_package="coolcar/proto/gen/go;trippb";
+
+
+message Location {
+    double  latitude = 1;
+    double  longitude = 2;
+}
+
+//枚举类型
+enum TripStatus{
+    TS_NOT_SPECIFIED = 0;
+    NOT_STARTED = 1;
+    IN_PROGRESS = 2;
+    FINISHED = 3;
+    PAID = 4;
+}
+
+//protobuf字段的可选性,所有字段都是可选的，传递过来就会用，不传递的话是默认
+
+message Trip {
+    string start = 1;//第一个字段是start
+    string end   = 2;//第二个字段是end，原因是二进制数据流，不像json可以有明确的字段位置标识，但是二进制并不知道从哪里开始，到哪里结束，所以需要告诉解析器，第一个字段叫start第二个字段叫end
+    int64  duration_sec = 3;
+    int64  fee_cent  = 4;
+    Location start_pos = 5;
+    Location end_pos = 6;
+    repeated Location path_locations = 7;//[]*Location 会翻译成切片指针
+    TripStatus status = 8;
+    //bool has_duration_sec = 9; //如果是false就说明这个字段没填，就不需要理会，如果是true
+    //如何让每个字段正确的拥有0值
+    bool isPromotionTrip = 9;//yes
+    //bool isFromLoggedInUser = 10;//no
+    bool isFromGuestUser = 10;//yes  为了兼容新老系统，如果该字段是后期添加的使用在新系统中，那么上述的10里边表达就是错误的
+}
