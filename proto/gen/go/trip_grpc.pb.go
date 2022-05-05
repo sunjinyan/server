@@ -22,6 +22,9 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TripServiceClient interface {
+	//如果需要与外界交互传输，不仅需要说明rpc方法GetTrip
+	//还需要定义该服务在http的rest服务上应该暴力怎样的接口
+	//写法在trip.yaml文件中
 	GetTrip(ctx context.Context, in *GetTripRequest, opts ...grpc.CallOption) (*GetTripResponse, error)
 }
 
@@ -46,6 +49,9 @@ func (c *tripServiceClient) GetTrip(ctx context.Context, in *GetTripRequest, opt
 // All implementations must embed UnimplementedTripServiceServer
 // for forward compatibility
 type TripServiceServer interface {
+	//如果需要与外界交互传输，不仅需要说明rpc方法GetTrip
+	//还需要定义该服务在http的rest服务上应该暴力怎样的接口
+	//写法在trip.yaml文件中
 	GetTrip(context.Context, *GetTripRequest) (*GetTripResponse, error)
 	mustEmbedUnimplementedTripServiceServer()
 }

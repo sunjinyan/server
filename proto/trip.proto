@@ -23,8 +23,8 @@ enum TripStatus{
 message Trip {
     string start = 1;//第一个字段是start
     string end   = 2;//第二个字段是end，原因是二进制数据流，不像json可以有明确的字段位置标识，但是二进制并不知道从哪里开始，到哪里结束，所以需要告诉解析器，第一个字段叫start第二个字段叫end
-    int64  duration_sec = 3;
-    int64  fee_cent  = 4;
+    int32  duration_sec = 3;
+    int32  fee_cent  = 4;
     Location start_pos = 5;
     Location end_pos = 6;
     repeated Location path_locations = 7;//[]*Location 会翻译成切片指针
