@@ -1,15 +1,8 @@
 package main
 
-import (
-	trippb "coolcar/proto/gen/go"
-	"encoding/json"
-	"fmt"
-	"google.golang.org/protobuf/proto"
-)
 
-
-func main() {
-	fmt.Println("hello")
+func main1() {
+	/*fmt.Println("hello")
 	trip := trippb.Trip{
 		Start:       "abc",
 		End:         "def",
@@ -52,5 +45,5 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%s\n",t)
+	fmt.Printf("%s\n",t)*/
 }

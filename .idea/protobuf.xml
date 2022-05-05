@@ -4,7 +4,7 @@
     <option name="importRoots">
       <list>
         <ImportRootEntry>
-          <option name="path" value="file://$PROJECT_DIR$/../../protocbuf/include" />
+          <option name="path" value="file://$PROJECT_DIR$/../../protoc/include" />
         </ImportRootEntry>
       </list>
     </option>

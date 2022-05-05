@@ -1,7 +1,7 @@
 syntax = "proto3";
-package coolcar;
+package coolcar;//在proto中的package定义，该包在proto中包名就叫coolcar
 
-option go_package="coolcar/proto/gen/go;trippb";
+option go_package="coolcar/proto/gen/go;trippb";//这里是说生成的go语言的package是什么，在go语言里用
 
 
 message Location {
@@ -34,4 +34,20 @@ message Trip {
     bool isPromotionTrip = 9;//yes
     //bool isFromLoggedInUser = 10;//no
     bool isFromGuestUser = 10;//yes  为了兼容新老系统，如果该字段是后期添加的使用在新系统中，那么上述的10里边表达就是错误的
+}
+
+message GetTripRequest{
+    string id = 1;
+}
+
+message GetTripResponse{
+    string id = 1;
+    Trip trip = 2;
+}
+
+service TripService {
+    //如果需要与外界交互传输，不仅需要说明rpc方法GetTrip
+    //还需要定义该服务在http的rest服务上应该暴力怎样的接口
+    //写法在trip.yaml文件中
+    rpc GetTrip (GetTripRequest) returns (GetTripResponse);
 }

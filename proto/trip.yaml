@@ -1,0 +1,9 @@
+type: google.api.Server
+config_version: 3
+
+http:
+  rules:
+    - selector: coolcar.TripService.GetTrip #具体的服务名称，为什么是这个呢?这回我们的proto的文件中的package coolcar;就会有用
+      #selector中值的意思就是，coolcar包下的TripService的service，具体的方法就是GetTrip
+      get: /trip/{id}  #对应的服务暴露的接口是什么，就是我们分析的rest风格的接口，method是get，url是/trip/{id},也即是说当外部使用该http
+      #传输方法的时候，就是通过grpc getway路由到coolcar.TripService.GetTrip服务
