@@ -7,6 +7,7 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/encoding/protojson"
 	"log"
 	"net"
 	"net/http"
@@ -30,7 +31,22 @@ func startGrpcGateway() {
 	c := context.Background()//生成了没有具体内容的上下文
 	c,cancel := context.WithCancel(c)//具有cancel能力的上下文
 	defer cancel()
-	mux := runtime.NewServeMux()
+	mux := runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard,&runtime.JSONPb{
+		MarshalOptions:   protojson.MarshalOptions{
+			Multiline:         false,
+			Indent:            "",
+			AllowPartial:      false,
+			UseProtoNames:     true,
+			UseEnumNumbers:    true,
+			EmitUnpopulated:   true,
+			Resolver:          nil,
+		},
+		UnmarshalOptions:protojson.UnmarshalOptions{
+			AllowPartial:      false,
+			DiscardUnknown:    false,
+			Resolver:          nil,
+		},
+	}))
 	err := trippb.RegisterTripServiceHandlerFromEndpoint(
 		c,                     //通过这个context来链接服务
 		mux, //mux: multiplexer 就是1 对多的意思，分发器，链接注册在NewServeMux
