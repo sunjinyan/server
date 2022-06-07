@@ -1,0 +1,97 @@
+syntax = "proto3";
+
+package rental.v1;
+
+option go_package = "coolcar/rental/api/gen/v1;rentalpb";
+
+
+//value object vs entity
+//举例:value object
+//a = 3 b = 3 ,两个变量，占据两个内存空间，我们认为a=b
+
+//a = 3 a = 4,a变了
+
+//loc1 = (31,121)
+//loc2 = (31,121)
+//以上就是value object
+message Location {
+    double latitude  =  1;
+    double longitude = 2;
+}
+
+message LocationStatus{
+    Location location = 1;
+    int32 fee_cent = 2;//应该是服务器计算的，不应该是填写的
+    double  km_driven = 3;//应该是服务器计算的，不应该是填写的
+    string  poi_name = 4;
+    int64 timestamp_sec = 5;
+}
+
+enum  TripStatus {
+    TS_NOT_SPECIFIED = 0;
+    IN_PROGRESS = 1;
+    FINISHED = 2;
+}
+
+//如此定义，trip里的id就放到这里
+//那么 Trip 就不再是实体，而是值类型，而此时的TripEntity
+//则是属于实体
+message TripEntity{
+    string  id = 1;
+    Trip trip = 2;
+}
+
+//值类型
+message Trip {
+    //string id = 7;//涉及到领域驱动开发关键知识点，value object vs entity
+    string accountId = 1;
+    string carId = 2;
+    LocationStatus start = 3;
+    LocationStatus current = 5;//应该是服务器计算的，不应该是填写的
+    LocationStatus end = 4;
+    TripStatus status = 6;//应该是服务器计算的，不应该是填写的
+    string identity_id = 7;
+}
+
+
+message CreateTripRequest{
+    //string start = 1;
+//    Trip trip = 1;
+    //如果Trip里边放有id，而不是定义TripEntity，那么在CreateTrip
+    //的时候，其他的值要填写，那么这时候的Trip里的id要不要填
+    //没办法决定，所以id不能在这里，id交给服务器
+    Location start = 1;//创建行程需要知道其实点和那辆车
+    string  car_id = 2;
+
+}
+
+//message CreateTripResponse{
+//    TripEntity trip = 1;
+//    string trip_id = 1;
+//}
+
+message GetTripRequest{
+    string  id = 1;
+}
+
+message GetTripsRequest{
+    TripStatus status = 1;
+}
+
+message GetTripsResponse {
+    repeated TripEntity trips = 1;
+}
+
+message UpdateTripRequest {
+    string id = 1;
+    Location current = 2;
+    bool end_trip = 3;
+}
+
+service TripService{
+    //rpc CreateTrip(CreateTripRequest) returns(CreateTripResponse);
+    rpc CreateTrip(CreateTripRequest) returns(TripEntity);
+    rpc GetTrip(GetTripRequest) returns (Trip);
+    rpc GetTrips(GetTripsRequest) returns (GetTripsResponse);
+    rpc UpdateTrip (UpdateTripRequest) returns (Trip);
+}
