@@ -4,11 +4,13 @@ import (
 	"context"
 	"coolcar/rental/ai"
 	rentalpb "coolcar/rental/api/gen/v1"
+	"coolcar/rental/profile"
+	profiledao "coolcar/rental/profile/dao"
 	"coolcar/rental/trip"
 	"coolcar/rental/trip/client/car"
 	"coolcar/rental/trip/client/poi"
-	"coolcar/rental/trip/client/profile"
-	"coolcar/rental/trip/dao"
+	profClient "coolcar/rental/trip/client/profile"
+	tripdao "coolcar/rental/trip/dao"
 	coolenvpb "coolcar/shared/coolenv"
 	"coolcar/shared/server"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -52,6 +54,8 @@ func main() {
 		logger.Fatal("can not connect AIClient",zap.Error(err))
 	}
 
+	db := connect.Database("coolcar")
+
 	logger.Sugar().Fatal(server.RunGRPCServer(&server.GRPCConfig{
 		Logger:            logger,
 		Addr:              ":8082",
@@ -61,12 +65,16 @@ func main() {
 			rentalpb.RegisterTripServiceServer(server, &trip.Service{
 				Logger: logger,
 				CarManager: &car.Manager{},
-				ProfileManager: &profile.Manager{},
+				ProfileManager: &profClient.Manager{},
 				POIManager: &poi.Manager{},
 				DistanceCalc: &ai.Client{
 					AIClient:coolenvpb.NewAIServiceClient(conn),
 				},
-				Mongo: dao.NewMongo(connect.Database("coolcar")),
+				Mongo: tripdao.NewMongo(db),
+			})
+			rentalpb.RegisterProfileServiceServer(server,&profile.Service{
+				Mongo:                             profiledao.NewMongo(db),
+				Logger:                            logger,
 			})
 		},
 	}))

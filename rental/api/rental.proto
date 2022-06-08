@@ -95,3 +95,81 @@ service TripService{
     rpc GetTrips(GetTripsRequest) returns (GetTripsResponse);
     rpc UpdateTrip (UpdateTripRequest) returns (Trip);
 }
+
+
+
+
+
+// Profile Service
+
+enum Gender{
+    G_NOT_SPECIFIED = 0;
+    MALE = 1;
+    FEMALE = 2;
+}
+
+enum IdentityStatus {
+    UNSUBMITTED = 0;
+    PENDING = 1;
+    VERIFIED = 2;
+}
+
+message Profile {
+
+    //string id = 2;//??身份信息是属于一个实体，还是属于值类型，没办法通过id来得出结论，profile 的 id 不是原因而是结果，值类型是account_id->identity的映射，并不一定是id与实体的对应关系
+    //通过返回值进一步推测，值类型返回的是有profile，只不过是空结构体，而实体如果没有被找到是需要报错的，因为实体有生命周期.
+
+
+    Identity identity = 1;
+    IdentityStatus identity_status = 2;
+    //photo addr
+}
+
+//值类型，只需下面四个字段
+message Identity{
+    string lic_number = 1;
+    string name  = 2;
+    Gender gender = 3;
+    int64  birth_date_millis = 4;
+}
+
+message GetProfileRequest {
+
+}
+
+message ClearProfileRequest{
+
+}
+
+service ProfileService{
+    rpc GetProfile(GetProfileRequest) returns (Profile);
+    rpc SubmitProfile(Identity) returns (Profile);
+    rpc ClearProfile(ClearProfileRequest) returns (Profile);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

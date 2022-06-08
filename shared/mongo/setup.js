@@ -13,3 +13,9 @@ db.trip.createIndex({
         "trip.status":1,//必须保证在status的值是1的情况下，唯一索引才会生效，0的不生效
     }
 })
+
+db.profile.createIndex({
+    "accountid":1,
+},{
+    unique:true,
+})
