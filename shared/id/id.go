@@ -27,3 +27,10 @@ type CarID string
 func (c CarID)String()string  {
 	return string(c)
 }
+
+
+type BlobID string
+
+func (c BlobID)String()string  {
+	return string(c)
+}

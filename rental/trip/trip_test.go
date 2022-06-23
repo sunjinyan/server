@@ -158,11 +158,13 @@ func (cm *carManager)Verify(ctx context.Context,cid id.CarID,lc *rentalpb.Locati
 
 	return cm.verfiErr
 }
-func (cm *carManager)Unlock(ctx context.Context,cid id.CarID) error{
+func (cm *carManager)Unlock(ctx context.Context,cid id.CarID,aid id.AccountId,tid id.TripId,avatarUrl string) error{
 
 	return cm.unlockErr
 }
-
+func (cm *carManager)Lock(c context.Context,cid id.CarID) error  {
+	return nil
+}
 //POIManager Point of Interest
 type pOIManager struct {
 

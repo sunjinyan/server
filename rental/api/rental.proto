@@ -62,6 +62,7 @@ message CreateTripRequest{
     //没办法决定，所以id不能在这里，id交给服务器
     Location start = 1;//创建行程需要知道其实点和那辆车
     string  car_id = 2;
+    string  avatar_url = 3;
 
 }
 
@@ -141,10 +142,60 @@ message ClearProfileRequest{
 
 }
 
+
+message GetProfilePhotoRequest{
+
+}
+message GetProfilePhotoResponse{
+    string url = 1;
+}
+
+message CreateProfilePhotoRequest {
+
+}
+
+message CreateProfilePhotoResponse{
+    string upload_url = 1;
+}
+
+message CompleteProfilePhotoRequest {
+
+}
+//message CompleteProfilePhotoResponse{
+//    Identity identity = 1;
+//}
+
+message ClearProfilePhotoRequest {
+
+}
+
+message ClearProfilePhotoResponse {
+
+}
+
+
+message UploadFilePhotoRequest {
+    string file_name = 1;
+}
+
+message UploadFilePhotoResponse {
+    string url=1;
+}
+
 service ProfileService{
     rpc GetProfile(GetProfileRequest) returns (Profile);
     rpc SubmitProfile(Identity) returns (Profile);
     rpc ClearProfile(ClearProfileRequest) returns (Profile);
+
+
+
+    rpc GetProfilePhoto(GetProfilePhotoRequest) returns (GetProfilePhotoResponse);
+    rpc CreateProfilePhoto(CreateProfilePhotoRequest) returns (CreateProfilePhotoResponse);
+    rpc CompleteProfilePhoto(CompleteProfilePhotoRequest) returns (Identity);
+    rpc ClearProfilePhoto (ClearProfilePhotoRequest) returns (ClearProfilePhotoResponse);
+
+
+    rpc UploadFilePhoto(UploadFilePhotoRequest) returns (UploadFilePhotoResponse);
 }
 
 

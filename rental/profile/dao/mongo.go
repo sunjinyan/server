@@ -15,6 +15,7 @@ const (
 	accountIDField = "accountid"
 	profileField = "profile"
 	identityStatusField = profileField + ".identitystatus"
+	photoBlobIDField = "photoblobid"
 )
 
 
@@ -30,12 +31,13 @@ func NewMongo(db *mongo.Database) *Mongo {
 type ProfileRecord struct {
 	AccountId string `bson:"accountid"`
 	Profile *rentalpb.Profile `bson:"profile"`
+	PhotoBlobID string `bson:"photoblobid"`
 }
 
 
 
 //Get Profile
-func (m *Mongo)GetProfile(c context.Context,aid id.AccountId)(*rentalpb.Profile,error)  {
+func (m *Mongo)GetProfile(c context.Context,aid id.AccountId)(*ProfileRecord,error)  {
 	res := m.col.FindOne(c,byAccountID(aid))
 	if err := res.Err(); err != nil {
 		return nil, err
@@ -46,14 +48,20 @@ func (m *Mongo)GetProfile(c context.Context,aid id.AccountId)(*rentalpb.Profile,
 	if err != nil {
 		return nil,fmt.Errorf("cannot decode profile record:%v",err)
 	}
-	return pr.Profile,nil
+	return &pr,nil
 }
 
 func (m *Mongo)UpdateProfile(c context.Context,aid id.AccountId,s rentalpb.IdentityStatus,p *rentalpb.Profile) error  {
-	_, err := m.col.UpdateOne(c, bson.M{
-		accountIDField: aid.String(),
+	fileter := bson.M{
 		identityStatusField:s,
-	}, mgutil.Set(bson.M{
+	}
+	if s  == rentalpb.IdentityStatus_UNSUBMITTED {
+		fileter = mgutil.ZeroOrDoesNotExist(identityStatusField,s)
+	}
+
+	fileter[accountIDField]  = aid.String()
+
+	_, err := m.col.UpdateOne(c, fileter, mgutil.Set(bson.M{
 		profileField: p,
 	}),options.Update().SetUpsert(true))//options.Update().SetUpsert(true)并不是普通的update，而是有则修改，无则新增
 	return err
@@ -65,8 +73,14 @@ func byAccountID(aid id.AccountId) bson.M  {
 	}
 }
 
-
-
+func (m *Mongo)UpdateProfilePhoto(c context.Context,aid id.AccountId,bid id.BlobID) error  {
+	_, err := m.col.UpdateOne(c, bson.M{
+		accountIDField: aid.String(),
+	}, mgutil.Set(bson.M{
+		photoBlobIDField: bid.String(),
+	}),options.Update().SetUpsert(true))//options.Update().SetUpsert(true)并不是普通的update，而是有则修改，无则新增
+	return err
+}
 
 
 

@@ -1,5 +1,6 @@
 function genProto() {
   DOMAIN=$1
+  SKIP_GATEWAY=$2
   PROTO_PATH=./${DOMAIN}/api
   GO_OUT_PATH=./${DOMAIN}/api/gen/v1
 
@@ -7,9 +8,12 @@ function genProto() {
 
   protoc -I=$PROTO_PATH --go_out=paths=source_relative:$GO_OUT_PATH --go-grpc_out=paths=source_relative:$GO_OUT_PATH $PROTO_PATH/${DOMAIN}.proto
 
+  if [ $SKIP_GATEWAY ]; then
+    return
+  fi
+
   #生成grpc gateway
   protoc -I=$PROTO_PATH --grpc-gateway_out=paths=source_relative,grpc_api_configuration=$PROTO_PATH/${DOMAIN}.yaml:$GO_OUT_PATH $PROTO_PATH/${DOMAIN}.proto
-
 
 
   PBTS_BIN_DIR=../wx/miniprogram/node_modules/.bin
@@ -27,3 +31,7 @@ function genProto() {
 genProto auth
 
 genProto rental
+
+genProto blob 1
+
+genProto car

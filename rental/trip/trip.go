@@ -6,6 +6,7 @@ import (
 	"coolcar/rental/trip/dao"
 	"coolcar/shared/auth"
 	"coolcar/shared/id"
+	"coolcar/shared/mongo/objid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -32,7 +33,9 @@ type ProfileManager interface {
 //Car Manager defines the ACL for car management
 type CarManager interface {
 	Verify(context.Context,id.CarID,*rentalpb.Location) error
-	Unlock(context.Context,id.CarID) error
+	Unlock(context.Context,id.CarID,id.AccountId,id.TripId, string) error
+	//Unlock(context.Context,id.CarID) error
+	Lock(context.Context,id.CarID) error
 }
 
 //POIManager Point of Interest
@@ -110,7 +113,7 @@ func (s *Service)CreateTrip(ctx context.Context,res *rentalpb.CreateTripRequest)
 		//形成已经创建成功了
 		//希望立刻让用户知道形成已经成功了，开始计费，同时进行开锁动作
 		//所以需要在后台开锁
-		err := s.CarManager.Unlock(context.Background(), carId)
+		err := s.CarManager.Unlock(context.Background(), carId,aid,objid.ToTripId(tr.ID),res.AvatarUrl)
 		if err != nil {
 			s.Logger.Error("cannot unlock car",zap.Error(err))
 		}
@@ -203,7 +206,12 @@ func (s *Service)UpdateTrip(ctx context.Context,res *rentalpb.UpdateTripRequest)
 	if res.EndTrip {
 		tr.Trip.End = tr.Trip.Current
 		tr.Trip.Status = rentalpb.TripStatus_FINISHED
+		err = s.CarManager.Lock(ctx, id.CarID(tr.Trip.CarId))
+		if err != nil {
+			return nil,status.Errorf(codes.FailedPrecondition,"cannot lock car: %v",err)
+		}
 	}
+
 	err = s.Mongo.UpdateTrip(ctx, tid, aid, tr.UpdateAt, tr.Trip)
 	if err != nil {
 		s.Logger.Error("cannot update trip",zap.String("id",tid.String()),zap.String("err",err.Error()))

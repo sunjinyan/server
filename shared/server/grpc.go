@@ -24,7 +24,7 @@ func RunGRPCServer(c *GRPCConfig) (err error) {
 		return
 	}
 
-	//添加拦截器
+	//添加拦截器,用于拦截是否需要登录
 	var in grpc.UnaryServerInterceptor
 	var opts []grpc.ServerOption
 	if c.AuthPublicKeyFile != ""{
