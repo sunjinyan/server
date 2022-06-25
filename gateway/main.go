@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	authpb "coolcar/auth/api/gen/v1"
+	carpb "coolcar/car/api/gen/v1"
 	rentalpb "coolcar/rental/api/gen/v1"
+	"coolcar/shared/auth"
 	"coolcar/shared/server"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
@@ -11,6 +13,7 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"log"
 	"net/http"
+	"net/textproto"
 )
 
 func main() {
@@ -38,6 +41,13 @@ func main() {
 			DiscardUnknown:    false,
 			Resolver:          nil,
 		},
+	}),
+	runtime.WithIncomingHeaderMatcher(func(s string) (string, bool) {
+		if s == textproto.CanonicalMIMEHeaderKey(runtime.MetadataHeaderPrefix+auth.ImpersonteAccountHeader) {
+			//如果客户送了一个伪造的头部,那么就把这个扔掉
+			return "", false
+		}
+		return runtime.DefaultHeaderMatcher(s)
 	}))
 
 	serverConfig := []struct{
@@ -58,6 +68,10 @@ func main() {
 			name: "profile",
 			addr:"localhost:8082",
 			registerFunc: rentalpb.RegisterProfileServiceHandlerFromEndpoint,
+		},{
+			name: "car",
+			addr:"localhost:8085",
+			registerFunc: carpb.RegisterCarServiceHandlerFromEndpoint,
 		},
 	}
 

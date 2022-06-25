@@ -4,6 +4,8 @@ import (
 	"context"
 	carpb "coolcar/car/api/gen/v1"
 	"coolcar/car/dao"
+	"coolcar/car/mq"
+
 	//"coolcar/car/mq"
 	"coolcar/shared/id"
 
@@ -13,16 +15,11 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type Publisher interface {
-	Publish(context.Context,*carpb.CarEntity) error
-}
-
-
 // Service defines a car service.
 type Service struct {
 	Logger    *zap.Logger
 	Mongo     *dao.Mongo
-	Publisher Publisher
+	Publisher mq.Publisher
 	carpb.UnimplementedCarServiceServer
 }
 
