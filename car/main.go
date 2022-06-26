@@ -52,7 +52,7 @@ func main() {
 		logger.Fatal("cannot create publisher ",zap.Error(err))
 	}
 
-	carConn,err :=  grpc.Dial("localhost:8085",grpc.WithTransportCredentials(insecure.NewCredentials()))
+	carConn,err :=  grpc.Dial("localhost:8086",grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		logger.Fatal("cannot connect car  client ",zap.Error(err))
 	}
@@ -98,7 +98,7 @@ func main() {
 
 	http.HandleFunc("/ws",wx.Handler(u,sub,logger))
 	go func() {
-		addr  := ":9090"
+		addr  := ":9091"
 		logger.Info("HTTP  server started.",zap.String("addr",addr))
 		logger.Sugar().Fatal(http.ListenAndServe(addr,nil))
 	}()
@@ -112,7 +112,7 @@ func main() {
 
 	logger.Sugar().Fatal(server.RunGRPCServer(&server.GRPCConfig{
 		Logger:            logger,
-		Addr:              ":8085",
+		Addr:              ":8086",
 		Name:              "car",
 		RegisterFunc: func(s *grpc.Server) {
 			carpb.RegisterCarServiceServer(s,&car.Service{

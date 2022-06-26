@@ -63,7 +63,7 @@ func (i *interceptor) HandleReq(ctx context.Context, req interface {}, info *grp
 
 	if aid != "" {
 		fmt.Printf("impersonationg %q\n",aid)
-		return  handler(ContextWithAccountId(ctx,id.AccountId(aid)),req),nil
+		return  handler(ContextWithAccountId(ctx,id.AccountId(aid)),req)
 	}
 
 	tkn,err := tokenFromContext(ctx)

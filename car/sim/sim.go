@@ -96,7 +96,9 @@ func (c *Controller)RunSimulations(ctx context.Context)  {
 		case carUpdate := <- msgCh:
 			ch := carChans[carUpdate.Id]
 			if ch != nil {
-				ch <- carUpdate.Car
+				go func() {
+					ch <- carUpdate.Car
+				}()
 			}
 		case posUpdate := <-posCh:
 			ch := posChans[posUpdate.CarId]
@@ -215,7 +217,7 @@ func (c *Controller)unlockCar(ctx context.Context,car *carpb.CarEntity)(*carpb.C
 			Latitude:  car.Car.Position.Latitude,
 			Longitude: car.Car.Position.Longitude,
 		},
-		Type: coolenvpb.PosType_RANDOM,
+		Type: coolenvpb.PosType_NINGBO,
 	})
 	if err != nil {
 		c.Logger.Error("cannot simulate car pos",zap.Error(err))

@@ -7,7 +7,7 @@ import (
 	rentalpb "coolcar/rental/api/gen/v1"
 	"coolcar/shared/auth"
 	"coolcar/shared/id"
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	//"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
