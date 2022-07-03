@@ -9,6 +9,7 @@ import (
 	"coolcar/auth/wechat"
 	"coolcar/shared/server"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/urfave/cli/v2"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
@@ -47,6 +48,75 @@ sJ6VRtPBrq9mfQ0VHOlLt/2ZYG5rPuBWGxwJC9OF+nWew2uWphLxqha2o1bot4Sh
 n1CyPlTZDM9IrUSFJ44iFgx08tUdgvxFX3N8jfgQl3k8I5hvVQ==
 -----END RSA PRIVATE KEY-----`
 
+var addr string
+var mongoURI string
+var privateKeyFile string
+var wechatAppID string
+var wechatAppSecret string
+
+
+func init() {
+
+	app := &cli.App{
+		Usage:                  "please inter gateway options",
+		Flags:                  []cli.Flag{
+			&cli.StringFlag{
+				Name:        "addr",
+				Usage:       "service addr port",
+				//Required:    true,
+				Value:       ":8081",
+				Destination: &addr,
+				Aliases:     []string{"a"},
+				EnvVars:     []string{"ADDR"},
+			},
+			&cli.StringFlag{
+				Name:        "mongo_url",
+				Usage:       "mongo URI addr port",
+				//Required:    true,
+				Value:       "mongodb://47.93.20.75:27017/coolcar?readPreference=primary&ssl=false",
+				Destination: &mongoURI,
+				Aliases:     []string{"mu"},
+				EnvVars:     []string{"MONGO_URI"},
+			},
+			&cli.StringFlag{
+				Name:        "private_key_file",
+				Usage:       "private  key file path",
+				//Required:    true,
+				Value:       "auth/prev.key",
+				Destination: &privateKeyFile,
+				Aliases:     []string{"pkf"},
+				EnvVars:     []string{"PRIVATE_KEY_FILE"},
+			},
+			&cli.StringFlag{
+				Name:        "wechat_app_id",
+				Usage:       "wechat app ID",
+				//Required:    true,
+				Value:       "wx851020fe449a84e2",
+				Destination: &wechatAppID,
+				Aliases:     []string{"wai"},
+				EnvVars:     []string{"WECHAT_APP_ID"},
+			},
+			&cli.StringFlag{
+				Name:        "wechat_app_secret",
+				Usage:       "wechat app secret",
+				//Required:    true,
+				Value:       "26c95bc945fd0d7ccf7c473ef5a5e7f8",
+				Destination: &wechatAppSecret,
+				Aliases:     []string{"was"},
+				EnvVars:     []string{"WECHAT_APP_SECRET"},
+			},
+		},
+		EnableBashCompletion:   true,
+		Action: func(c *cli.Context) error {
+			return nil
+		},
+	}
+	if err  := app.Run(os.Args); err != nil {
+		panic(err)
+	}
+}
+
+
 func main() {
 	logger, err := server.NewZapLogger()
 	if err != nil {
@@ -55,12 +125,12 @@ func main() {
 	}
 
 	//建立mongodb
-	connect, err := mongo.Connect(context.Background(), options.Client().ApplyURI("mongodb://47.93.20.75:27017/coolcar?readPreference=primary&ssl=false"))
+	connect, err := mongo.Connect(context.Background(), options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		logger.Fatal("can not connect mongodb",zap.Error(err))
 	}
 
-	pkFile,err := os.Open("auth/prev.key")
+	pkFile,err := os.Open(privateKeyFile)
 	if err != nil {
 		log.Fatalf("can not open private key:%v",err)
 	}
@@ -75,13 +145,14 @@ func main() {
 
 	logger.Sugar().Fatal(server.RunGRPCServer(&server.GRPCConfig{
 		Logger:            logger,
-		Addr:              ":8081",
+		//Addr:              ":8081",
+		Addr:              addr,
 		Name:              "auth",
 		RegisterFunc: func(server *grpc.Server) {
 			authpb.RegisterAuthServiceServer(server,&auth.Service{
 				OpenIDResolver: &wechat.Service{
-					AppID: "wx851020fe449a84e2",
-					AppSecret: "26c95bc945fd0d7ccf7c473ef5a5e7f8",
+					AppID: wechatAppID,
+					AppSecret: wechatAppSecret,
 				},
 				Log: logger,
 				Mongo: dao.NewMongo(connect.Database("coolcar")),
