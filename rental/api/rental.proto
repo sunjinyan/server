@@ -4,13 +4,27 @@ package rental.v1;
 
 option go_package = "coolcar/rental/api/gen/v1;rentalpb";
 
+/**
+我们知道DDD中，Aggregate和面向对象的Class是不同的。虽然也讲究高内聚，但是Aggregate对粒度有苛刻的要求。
+一个Aggregate是一个事务一致性的边界。
+鉴定方法如下：
+如果一部分属性自身会随着时间改变，或者变化时这个属性集可以完全被替换，那么这些属性需要单独放到一个Value Object中，而不是放在Entity中。
+这样，Aggregate就包含了根entity和Value对象，Aggregate本身不是不变体，因为值对象经常被替换。但是Entity是不变体.
+trip是一个entity，只认id aggregate root
+entity的数据是可以改变的，但是不会因为改变了其他的值就说不再是这个entity了，因为entity只认root id，而不管是否具体的其他值变不变
+就算其他值都一样，但是id不同，那也是两个entity类型，其他值都不一样，但是root id相同，那么也说是属于同一个entity
 
+
+为什么LocationStatus是一个valueObject 而Trip却是Entity，并不是字段多就是Entity，比如最后将Trip内的Id标识拿出来，放入到
+TripEntity中，这样下来就会看出，并不是字段多就Entity
+*/
 //value object vs entity
 //举例:value object
 //a = 3 b = 3 ,两个变量，占据两个内存空间，我们认为a=b
 
-//a = 3 a = 4,a变了
+//a = 3 a = 4,a的值改变了
 
+//Location是value object
 //loc1 = (31,121)
 //loc2 = (31,121)
 //以上就是value object

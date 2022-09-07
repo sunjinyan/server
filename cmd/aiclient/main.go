@@ -106,7 +106,7 @@ func main() {
 		select {
 		case msg := <-raw:
 			var update coolenvpb.CarPosUpdate
-			json.Unmarshal(msg.Body,&update)
+			err := json.Unmarshal(msg.Body, &update)
 			if err != nil {
 				panic(err)
 			}

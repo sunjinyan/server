@@ -49,6 +49,7 @@ func (p *Publisher)Publish(c context.Context,car *carpb.CarEntity) error {
 		false,
 		amqp.Publishing{
 			Body: b,
+			Expiration: "30000",//过期时间
 		},
 	)
 }
@@ -159,5 +160,13 @@ func (s *Subscriber)Subscribe(ctx context.Context) (cc chan *carpb.CarEntity,fn 
 }
 
 func declareExchange(ch *amqp.Channel, exchange string) error {
+	/**延迟队列
+	err := ch.ExchangeDeclare(exchange, "x-delayed-message",
+		false, false, false, false,
+		map[string]interface{}{"x-delayed-type": "direct"})
+	if err != nil {
+		log.Fatal(err)
+	}*/
+
 	return  ch.ExchangeDeclare(exchange, amqp.ExchangeFanout, true, false, false, false, nil)
 }

@@ -4,6 +4,8 @@ import (
 	"coolcar/shared/auth"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	"google.golang.org/grpc/health/grpc_health_v1"
 	"net"
 )
 
@@ -25,10 +27,10 @@ func RunGRPCServer(c *GRPCConfig) (err error) {
 	}
 
 	//添加拦截器,用于拦截是否需要登录
-	var in grpc.UnaryServerInterceptor
+	//var in grpc.UnaryServerInterceptor
 	var opts []grpc.ServerOption
 	if c.AuthPublicKeyFile != ""{
-		in,err = auth.Interceptor(c.AuthPublicKeyFile)
+		in,err := auth.Interceptor(c.AuthPublicKeyFile)
 		if err != nil {
 			c.Logger.Fatal("can not Interceptor",nameField ,zap.Error(err))
 			return
@@ -43,8 +45,12 @@ func RunGRPCServer(c *GRPCConfig) (err error) {
 	//	s = grpc.NewServer(grpc.UnaryInterceptor(in))
 	//}
 	s := grpc.NewServer(opts...)
+
+	//注册服务有不确定因素，可以转换为函数，交由外部决定
 	c.RegisterFunc(s)
 
+	//添加grpc得health server
+	grpc_health_v1.RegisterHealthServer(s,health.NewServer())
 	//rentalpb.RegisterTripServiceServer(s,&trip.Service{
 	//	Logger:                         logger,
 	//})

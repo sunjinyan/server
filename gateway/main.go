@@ -217,6 +217,39 @@ func main() {
 	//	log.Fatalf("can not register trip service: %v",err)
 	//}
 	//addr := ":8090"
+
+
+
+	//u,err := url.Parse("http://nginx-service")
+	//if err != nil {
+	//	logger.Sugar().Fatalf("can not parse nginx url:%v",  err)
+	//}
+
+	//p := httputil.NewSingleHostReverseProxy(u)
+	//
+	//p.Transport = &http.Transport{
+	//	DisableKeepAlives: false,
+	//}
+	//http.Handle("/lb-keeplive",p)
+
+	//p2 := httputil.NewSingleHostReverseProxy(u)
+	//p2.Transport = &http.Transport{
+	//	DisableKeepAlives: true,
+	//}
+	//http.Handle("/lb-nokeepalive",p2)
+
+
+	//不管用，因为这种需要是用http得默认多路复用器，而下边listenAndServe使用了Grpc得多路复用器logger.Sugar().Fatal(http.ListenAndServe(addr, mux))
+	http.HandleFunc("/healthz", func(writer http.ResponseWriter, request *http.Request) {
+		writer.Write([]byte("ok"))
+	})
+
+
+	//使用这种方法，然后listenAndServe使用默认多路复用器，这样见到了/就用mux，见到/healthz就用上边得处理
+	http.Handle("/",mux)
+
+
 	logger.Sugar().Infof("grpc gateway started at %s", addr)
-	logger.Sugar().Fatal(http.ListenAndServe(addr, mux))
+	//logger.Sugar().Fatal(http.ListenAndServe(addr, mux))
+	logger.Sugar().Fatal(http.ListenAndServe(addr, nil))
 }
