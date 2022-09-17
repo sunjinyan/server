@@ -139,6 +139,22 @@ func main() {
 	c, cancel := context.WithCancel(context.Background()) //只能用带有cancel的上下文，不能用超时的，会报错client close
 	defer cancel()
 
+
+
+	/**
+	GRPC Gateway头部特殊处理，会在非标准http请求头的信息上需要添加"Grpc-Metadata-"
+	在常规的标准http请求头的信息上需要添加 "grpcgateway-"
+	所以前端如果向传递特殊的请求头部给grpcgateway，那么就需要写成"Grpc-Metadata-" + "XXXX"的形式
+	那么grpc如何防止被黑呢？
+	解决办法就是不适用默认的runtime2.DefaultHeaderMatcher()，而是重写type HeaderMatcherFunc func(string) (string, bool)给GRPC,所以NEwServeMux里就有一个参数
+	使用runtime.WithIncomingHeaderMatcher(func(s string) (string, bool) {
+			if s == textproto.CanonicalMIMEHeaderKey(runtime.MetadataHeaderPrefix+auth.ImpersonteAccountHeader) {
+				//如果客户送了一个伪造的头部,那么就把这个扔掉
+				return "", false
+			}
+			return runtime.DefaultHeaderMatcher(s)
+		})作为NewServeMux的最后一个参数
+	*/
 	mux := runtime.NewServeMux(runtime.WithMarshalerOption(runtime.MIMEWildcard, &runtime.JSONPb{
 		MarshalOptions: protojson.MarshalOptions{
 			Multiline:       false,
@@ -154,6 +170,8 @@ func main() {
 			DiscardUnknown: false,
 			Resolver:       nil,
 		},
+		//OrigName: true,//runtime2的用法
+		//EnumsAsInts: true,
 	}),
 		runtime.WithIncomingHeaderMatcher(func(s string) (string, bool) {
 			if s == textproto.CanonicalMIMEHeaderKey(runtime.MetadataHeaderPrefix+auth.ImpersonteAccountHeader) {
