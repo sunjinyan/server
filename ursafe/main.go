@@ -127,7 +127,7 @@ func Subcommands() {
 		},
 	}
 
-	//只能在Action内部使用
+	//只能在Action内部使用 （错误理解，这里还没有Run肯定取不到命令行输入信息）
 	fmt.Println("======dest2=====",dest)
 	//fmt.Println("======dest3=====",dest3)
 
