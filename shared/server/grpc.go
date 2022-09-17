@@ -33,7 +33,7 @@ func RunGRPCServer(c *GRPCConfig) (err error) {
 		in,err := auth.Interceptor(c.AuthPublicKeyFile)
 		if err != nil {
 			c.Logger.Fatal("can not Interceptor",nameField ,zap.Error(err))
-			return
+			return err
 		}
 		opts = append(opts,grpc.UnaryInterceptor(in))
 	}

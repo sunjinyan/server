@@ -188,24 +188,24 @@ func main() {
 	}{
 		{
 			name:         "auth",
-			//addr:         "localhost:8081",
-			addr:         authAddr,
+			addr:         "localhost:8081",
+			//addr:         authAddr,
 			registerFunc: authpb.RegisterAuthServiceHandlerFromEndpoint,
 		},
 		{
 			name:         "trip",
-			//addr:         "localhost:8082",
-			addr:         tripAddr,
+			addr:         "localhost:8082",
+			//addr:         tripAddr,
 			registerFunc: rentalpb.RegisterTripServiceHandlerFromEndpoint,
 		}, {
 			name:         "profile",
-			//addr:         "localhost:8082",
-			addr:         profileAddr,
+			addr:         "localhost:8082",
+			//addr:         profileAddr,
 			registerFunc: rentalpb.RegisterProfileServiceHandlerFromEndpoint,
 		}, {
 			name:         "car",
-			//addr:         "localhost:8086",
-			addr:         carAddr,
+			addr:         "localhost:8086",
+			//addr:         carAddr,
 			registerFunc: carpb.RegisterCarServiceHandlerFromEndpoint,
 		},
 	}
