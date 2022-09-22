@@ -15,7 +15,7 @@ function genProto() {
   #生成grpc gateway
   protoc -I=$PROTO_PATH --grpc-gateway_out=paths=source_relative,grpc_api_configuration=$PROTO_PATH/${DOMAIN}.yaml:$GO_OUT_PATH $PROTO_PATH/${DOMAIN}.proto
 
-
+  ###
   PBTS_BIN_DIR=../wx/miniprogram/node_modules/.bin
   PBTS_OUT_DIR=../wx/miniprogram/service/proto_gen/${DOMAIN}
 
